@@ -5,9 +5,19 @@ date: "22 de septiembre de 2015"
 output: html_document
 ---
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+Five different fashions for the Unilateral Dumbbell Biceps Curl have been considered:
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+* Class A:exactly according to the specification <- "OK"
+
+* Class B:throwing the elbows to the front <- "NoOK"
+
+* Class C: lifting the dumbbell only halfway <- "NoOK"
+
+* Class D: lowering the dumbbell only halfway <- "NoOK"
+
+* Class E: throwing the hips to the front <- "NoOK"
+
+(Read more: http://groupware.les.inf.puc-rio.br/har#ixzz3mUfOAnhN)
 
 ```{r}
 summary(cars)
