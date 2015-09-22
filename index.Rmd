@@ -18,14 +18,17 @@ Five different fashions for the Unilateral Dumbbell Biceps Curl have been consid
 
 (Read more: http://groupware.les.inf.puc-rio.br/har#ixzz3mUfOAnhN)
 
-```{r}
-summary(cars)
+Original paper: Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. Qualitative Activity Recognition of Weight Lifting Exercises. Proceedings of 4th International Conference in Cooperation with SIGCHI (Augmented Human '13) . Stuttgart, Germany: ACM SIGCHI, 2013.
+
+Read more: http://groupware.les.inf.puc-rio.br/har#ixzz3mUvZoaRB
+
+```{r loaddata, echo=FALSE, results='hide'}
+data_dir <- "."
+training_file_name <- "pml-training.csv"
+testing_file_name <- "pml-testing.csv"
+
+training <- read.table(file=file.path(data_dir,training_file_name),sep=",", header=TRUE)
+testing <- read.table(file=file.path(data_dir,testing_file_name),sep=",", header=TRUE)
 ```
 
-You can also embed plots, for example:
 
-```{r, echo=FALSE}
-plot(cars)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
