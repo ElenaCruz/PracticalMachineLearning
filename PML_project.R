@@ -28,12 +28,22 @@ head(training)
 
 ##Clean summary columns
 summary_patterns <- c("max", "min","stddev", "var", "avg", "kurtosis", "skewness")
-summary_columns <- unlist(sapply(summary_patterns, grep, names(training)))
-training_reduxx <- select(training, -summary_columns)
-#Check whether the NAs and empty values in the head are for the whole column
-table(training$kurtosis_roll_belt)
-table(training$max_roll_belt)
+summary_columns <- unlist(sapply(summary_patterns, grep,names(training)))
+training_redux <- select(training, -summary_columns)
+summary(training_redux)
+
+amp_yaw_pattern <- c("amplitude_")
+amp_yaw_columns <- grep(amp_yaw_pattern, names(training_redux))
+training_redux <- select(training_redux, -amp_yaw_columns)
+
+summary(training_redux)
+
+#Data checking
+t1 <- training_redux[complete.cases(training_redux),]
+nacases <- sum(is.na(training_redux))
+
+
 
 #Clean NAs:
-t1 <- training[complete.cases(training),] #See how many rows are complete --> Only 460 of them
+t1 <- training_redux[complete.cases(training_redux),] #See how many rows are complete --> Only 460 of them
 summary(training)

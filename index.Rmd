@@ -47,6 +47,18 @@ training_redux <- select(training, -summary_columns)
 
 Besides, there are some columns that are 'summaries' of the 'raw data', that is, columns which contain the max, min, standard deviation, variance and standard deviation of the raw data. These columns have information that has been already included in the raw data information, so we will remove them in order to make our analysis simpler. We will remove the columns that contain the following patterns: `r summary_patterns`. This will allow us to remove `r length(summary_columns)` columns from the original dataset.
 
+Finally, we detect there are many errors in the amplitude columns. The vast majority of values in these columns are either 0, #DIV/0! or empty. Thus, we also remove these columns, as they are clearly wrong.
+```{r remove_amp_cols, echo=FALSE, results='hide', cache=TRUE}
+amp_yaw_pattern <- c("amplitude_")
+amp_yaw_columns <- grep(amp_yaw_pattern, names(training_redux))
+training_redux <- select(training_redux, -amp_yaw_columns)
+```
+
+These filtering operations allow us having a clean dataset, with no NAs:
+```{r showsummary, echo=FALSE, cache=TRUE}
+summary(training_redux)
+```
+
 ##Model selection
 
 ##Conclusions and results
