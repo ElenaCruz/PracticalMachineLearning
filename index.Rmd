@@ -54,6 +54,8 @@ amp_yaw_columns <- grep(amp_yaw_pattern, names(training_redux))
 training_redux <- select(training_redux, -amp_yaw_columns)
 ```
 
+So, `r length(amp_yaw_columns)` more columns are removed. `r ncol(training_redux)` remain from the original `r ncol(training)`, and, as it has been mentioned, some of them are not relevant for the analysis.
+
 These filtering operations allow us having a clean dataset, with no NAs:
 ```{r showsummary, echo=FALSE, cache=TRUE}
 summary(training_redux)
