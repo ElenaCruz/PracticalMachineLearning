@@ -45,7 +45,7 @@ summary_columns <- unlist(sapply(summary_patterns, grep, names(training)))
 training_redux <- select(training, -summary_columns)
 ```
 
-Besides, there are some columns that are 'summaries' of the 'raw data', that is, columns which contain the max, min, standard deviation, variance and standard deviation of the raw data. These columns have information that has been already included in the raw data information, so we will remove them in order to make our analysis simpler. We will remove the columns that contain the following patterns: `r summary_patterns`. This will allow us to remove `r length(summary_columns)` from the original dataset.
+Besides, there are some columns that are 'summaries' of the 'raw data', that is, columns which contain the max, min, standard deviation, variance and standard deviation of the raw data. These columns have information that has been already included in the raw data information, so we will remove them in order to make our analysis simpler. We will remove the columns that contain the following patterns: `r summary_patterns`. This will allow us to remove `r length(summary_columns)` columns from the original dataset.
 
 ##Model selection
 
