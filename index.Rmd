@@ -3,7 +3,11 @@ title: "Practical Machine Learning Project"
 author: "María Elena Cruz Martín"
 output: html_document
 ---
+```{r loadggplot, echo=FALSE,message=FALSE }
+require(dplyr)
+```
 
+## Overview
 Five different fashions for the Unilateral Dumbbell Biceps Curl have been considered:
 
 * Class A:exactly according to the specification <- "OK"
@@ -22,7 +26,9 @@ Original paper: Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. Q
 
 Read more: http://groupware.les.inf.puc-rio.br/har#ixzz3mUvZoaRB
 
-```{r loaddata, echo=FALSE, results='hide'}
+##Data cleaning and preparation
+
+```{r loaddata, echo=FALSE, results='hide', cache=TRUE}
 data_dir <- "."
 training_file_name <- "pml-training.csv"
 testing_file_name <- "pml-testing.csv"
@@ -30,5 +36,23 @@ testing_file_name <- "pml-testing.csv"
 training <- read.table(file=file.path(data_dir,training_file_name),sep=",", header=TRUE)
 testing <- read.table(file=file.path(data_dir,testing_file_name),sep=",", header=TRUE)
 ```
+
+From a brief preliminary analysis of the data, we identify some columns that are not relevant for the analysis, which are: X, user_name, raw_timestamp_part_1, raw_timestamp_part_2, cvtd_timestamp, new_window, and num_window. These columns will not be included in our analysis. 
+
+```{r removesummaries , echo=FALSE, results='hide', cache=TRUE}
+summary_patterns <- c("max", "min","stddev", "var", "avg", "kurtosis", "skewness")
+summary_columns <- unlist(sapply(summary_patterns, grep, names(training)))
+training_redux <- select(training, -summary_columns)
+```
+
+Besides, there are some columns that are 'summaries' of the 'raw data', that is, columns which contain the max, min, standard deviation, variance and standard deviation of the raw data. These columns have information that has been already included in the raw data information, so we will remove them in order to make our analysis simpler. We will remove the columns that contain the following patterns: `r summary_patterns`. This will allow us to remove `r length(summary_columns)` from the original dataset.
+
+##Model selection
+
+##Conclusions and results
+
+
+
+
 
 
