@@ -82,10 +82,8 @@ img {
 </div>
 <div id="data-cleaning-and-preparation" class="section level2">
 <h2>Data cleaning and preparation</h2>
-<p>From a brief preliminary analysis of the data, we identify some columns that are not relevant for the analysis, which are: X, user_name, raw_timestamp_part_1, raw_timestamp_part_2, cvtd_timestamp, new_window, and num_window. These columns will not be included in our analysis.</p>
-<p>Besides, there are some columns that are ‘summaries’ of the ‘raw data’, that is, columns which contain the max, min, standard deviation, variance and standard deviation of the raw data. These columns have information that has been already included in the raw data information, so we will remove them in order to make our analysis simpler. We will remove the columns that contain the following patterns: max, min, stddev, var, avg, kurtosis, skewness. This will allow us to remove 88 columns from the original dataset.</p>
-<p>Finally, we detect there are many errors in the amplitude columns. The vast majority of values in these columns are either 0, #DIV/0! or empty. Thus, we also remove these columns, as they are clearly wrong.</p>
-<p>So, 12 more columns are removed. 60 remain from the original 160, and, as it has been mentioned, some of them are not relevant for the analysis.</p>
+<p>From a basic preliminary analysis of the data we detect that there are some columns that are ‘summaries’ of the ‘raw data’, that is, columns which contain the max, min, standard deviation, variance and standard deviation of the raw data. These columns have information that has been already included in the raw data information, so we will remove them in order to make our analysis simpler. We will remove the columns that contain the following patterns: max, min, stddev, var, avg, kurtosis, skewness. This will allow us to remove 88 columns from the original dataset.</p>
+<p>We also detect there are many errors in the amplitude columns. The vast majority of values in these columns are either 0, #DIV/0! or empty. Thus, we also remove these columns, as they are clearly wrong.</p>
 <p>These filtering operations allow us having a clean dataset, with no NAs:</p>
 <pre><code>##        X            user_name    raw_timestamp_part_1 raw_timestamp_part_2
 ##  Min.   :    1   adelmo  :3892   Min.   :1.322e+09    Min.   :   294      
@@ -215,6 +213,8 @@ img {
 ##  E:3607  
 ##          
 ## </code></pre>
+<p>Finally, we have also identified some columns that are not relevant for the analysis, which are:X, user_name, raw_timestamp_part_1, raw_timestamp_part_2, cvtd_timestamp, new_window, num_window. These columns will not be included in our analysis.</p>
+<p>So, 19 more columns are removed. 53 remain from the original 160 for the analysis.</p>
 </div>
 <div id="model-selection" class="section level2">
 <h2>Model selection</h2>

@@ -5,6 +5,11 @@ output: html_document
 ---
 ```{r loadggplot, echo=FALSE,message=FALSE }
 require(dplyr)
+require(caret)
+require(corrplot)
+require(rattle)
+require(parallel, quietly=T)
+require(doParallel, quietly=T)
 ```
 
 ## Overview
@@ -26,7 +31,7 @@ Original paper: Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. Q
 
 Read more: http://groupware.les.inf.puc-rio.br/har#ixzz3mUvZoaRB
 
-##Data cleaning and preparation
+##Data cleaning and pre-processing
 
 ```{r loaddata, echo=FALSE, results='hide', cache=TRUE}
 data_dir <- "."
@@ -37,7 +42,6 @@ training <- read.table(file=file.path(data_dir,training_file_name),sep=",", head
 testing <- read.table(file=file.path(data_dir,testing_file_name),sep=",", header=TRUE)
 ```
 
-From a brief preliminary analysis of the data, we identify some columns that are not relevant for the analysis, which are: X, user_name, raw_timestamp_part_1, raw_timestamp_part_2, cvtd_timestamp, new_window, and num_window. These columns will not be included in our analysis. 
 
 ```{r removesummaries , echo=FALSE, results='hide', cache=TRUE}
 summary_patterns <- c("max", "min","stddev", "var", "avg", "kurtosis", "skewness")
@@ -45,23 +49,78 @@ summary_columns <- unlist(sapply(summary_patterns, grep, names(training)))
 training_redux <- select(training, -summary_columns)
 ```
 
-Besides, there are some columns that are 'summaries' of the 'raw data', that is, columns which contain the max, min, standard deviation, variance and standard deviation of the raw data. These columns have information that has been already included in the raw data information, so we will remove them in order to make our analysis simpler. We will remove the columns that contain the following patterns: `r summary_patterns`. This will allow us to remove `r length(summary_columns)` columns from the original dataset.
+From a basic preliminary analysis of the data we detect that there are some columns that are 'summaries' of the 'raw data', that is, columns which contain the max, min, standard deviation, variance and standard deviation of the raw data. These columns have information that has been already included in the raw data information, so we will remove them in order to make our analysis simpler. We will remove the columns that contain the following patterns: `r summary_patterns`. This will allow us to remove `r length(summary_columns)` columns from the original dataset.
 
-Finally, we detect there are many errors in the amplitude columns. The vast majority of values in these columns are either 0, #DIV/0! or empty. Thus, we also remove these columns, as they are clearly wrong.
+We also detect there are many errors in the amplitude columns. The vast majority of values in these columns are either 0, #DIV/0! or empty. Thus, we also remove these columns, as they are clearly wrong.
 ```{r remove_amp_cols, echo=FALSE, results='hide', cache=TRUE}
 amp_yaw_pattern <- c("amplitude_")
 amp_yaw_columns <- grep(amp_yaw_pattern, names(training_redux))
 training_redux <- select(training_redux, -amp_yaw_columns)
 ```
 
-So, `r length(amp_yaw_columns)` more columns are removed. `r ncol(training_redux)` remain from the original `r ncol(training)`, and, as it has been mentioned, some of them are not relevant for the analysis.
-
 These filtering operations allow us having a clean dataset, with no NAs:
 ```{r showsummary, echo=FALSE, cache=TRUE}
 summary(training_redux)
 ```
 
+
+```{r cleannotneeded,echo=FALSE, results='hide', cache=TRUE}
+#Remove not needed vars 
+removed_names <-names(training_redux)[1:7]
+training_redux <- training_redux[,8:ncol(training_redux)]
+
+```
+Finally, we have also identified some columns that are not relevant for the analysis, which are:`r removed_names`. These columns will not be included in our analysis. 
+
+So, `r length(amp_yaw_columns) + length(removed_names)` more columns are removed. Only `r ncol(training_redux)` remain from the original `r ncol(training)`.
+
+### Build correlation matrix and remove correlated vars
+The next step in our analysis is to build the correlation matrix for all the variables in the training set, and those that are highly correlated by applying the *findCorrelation* function.
+
+```{r seecorrelatedvars, cache=TRUE}
+corMatrix_entry <- select(training_redux, -classe) #We remove the classe column
+corMatrix <- cor(corMatrix_entry)
+correlatedCols <- findCorrelation(corMatrix, names=TRUE)
+corrplot(corMatrix, method = "circle")
+
+#Remove correlated cols 
+training_redux <- training_redux[,!(names(training_redux) %in% correlatedCols)]
+```
+
+Thus, our final dataset has `r ncol(training_redux)`
+
 ##Model selection
+We test several different models to identify which one delivers best results
+
+```{r setcluster,echo=FALSE, results='hide', cache=TRUE}
+## Turn on PP (leave at least 1 core free so your machine is still usable when doing the calc)
+cluster <- makeCluster(detectCores() - 1)
+registerDoParallel(cluster)
+```
+
+###Principal components model
+```{r pcamodel, cache=TRUE}
+preProc <- train(classe ~ ., data = training_redux, preProcess="pca")
+print(preProc$finalModel)
+```
+
+###Tree model
+```{r treemodel, cache=TRUE}
+modFit_tree <- train(classe~., data = training_redux, method="rpart")
+print(modFit_tree$finalModel)
+fancyRpartPlot(modFit_tree$finalModel)
+```
+
+###Random forest model
+```{r rfmodel, cache=TRUE}
+modFit_rf <- train(classe~., data = training_redux, method="rf")
+print(modFit_rf$finalModel)
+```
+
+```{r stopcluster,echo=FALSE, results='hide', cache=TRUE}
+stopCluster(cluster)
+```
+
 
 ##Conclusions and results
 
