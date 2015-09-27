@@ -69,14 +69,14 @@ training_redux <- training_redux[,8:ncol(training_redux)]
 ```
 Finally, we have also identified some columns that are not relevant for the analysis, which are:`r removed_names`. These columns will not be included in our analysis. 
 
-So, `r length(amp_yaw_columns) + length(removed_names)` more columns are removed. Only `r ncol(training_redux)` remain from the original `r ncol(training)`. The dataset looks now as follows: 
+So, `r length(amp_yaw_columns) + length(removed_names)` more columns are removed. Only `r ncol(training_redux)` remain from the original `r ncol(training)`. The selected columns for the training dataset are:
 
-```{r showhead}
-head(training_redux)
+```{r showhead, echo=FALSE}
+names(training_redux)
 ```
 
 ### Build correlation matrix and remove correlated vars
-Once we have a clean dataset, the next step in our analysis is to build the correlation matrix for all the variables in the training set, and those that are highly correlated by applying the *findCorrelation* function.
+Once we have a clean dataset, the next step in our analysis is to build the correlation matrix for all the variables in the training set, and those that are highly correlated by applying the *findCorrelation* function. We have discarded those entries that have shown to be correlated amongs them. 
 
 ```{r seecorrelatedvars, cache=TRUE,fig.align='center', fig.height=7, fig.width=7,fig.pos='h',fig.cap="Correlation Matrix for the clean training Dataset",echo=FALSE}
 corMatrix_entry <- select(training_redux, -classe) #We remove the classe column
@@ -88,10 +88,15 @@ corrplot(corMatrix, method = "circle")
 training_redux <- training_redux[,!(names(training_redux) %in% correlatedCols)]
 ```
 
-Thus, our final dataset has `r ncol(training_redux)`
+The entries with a high correlation among them are `r correlatedCols`, and our final dataset has `r ncol(training_redux)`
 
 ##Model selection
-We test several different models to identify which one delivers best results
+We have tested several different models in order to see which one gives better results with our training sets. The models we have chosen to test are:
+* PCA
+* Tree model
+* Random forests
+
+(Note: In order to speed-up our processing, we have used parallelization)
 
 ```{r setcluster,echo=FALSE, results='hide', cache=TRUE}
 ## Turn on PP (leave at least 1 core free so your machine is still usable when doing the calc)
@@ -100,20 +105,24 @@ registerDoParallel(cluster)
 ```
 
 ###Principal components model
-```{r pcamodel, cache=TRUE}
+We run the principal components model with the whole remaining training dataset, with the following results: 
+```{r pcamodel, echo=FALSE, cache=TRUE}
 preProc <- train(classe ~ ., data = training_redux, preProcess="pca")
 print(preProc$finalModel)
 ```
 
 ###Tree model
+As we have done for the principal components model, we build and run the tree model with the whole datasets
 ```{r treemodel, cache=TRUE,fig.align='center', fig.height=5, fig.width=5,fig.pos='h',fig.cap="Tree model",echo=FALSE}
 modFit_tree <- train(classe~., data = training_redux, method="rpart")
 print(modFit_tree$finalModel)
-fancyRpartPlot(modFit_tree$finalModel)
+fancyRpartPlot(modFit_tree$finalModel, main="Final model for the Tree model")
 ```
 
+
 ###Random forest model
-```{r rfmodel, cache=TRUE}
+Finally, we also test a random forest model with the wole dataset
+```{r rfmodel, cache=TRUE, echo=FALSE}
 modFit_rf <- train(classe~., data = training_redux, method="rf")
 print(modFit_rf$finalModel)
 ```
@@ -124,6 +133,14 @@ stopCluster(cluster)
 
 
 ##Conclusions and results
+From the results of the different models, we can see that the random forest model has the lowest OOB estimate of error rate (OOB estimate of  error rate: 0.43%). Thus, this is the model we will select for our analysis (and this also servers as cross-validation) . The PCA model also gives good results (OOB estimate of  error rate: 1.74%)
+
+The result dataset we obtain for the testing set wit the rf model is the following:
+```{r showresults}
+answers_rf <- predict(modFit_rf,testing)
+answers_rf
+```
+
 
 
 
