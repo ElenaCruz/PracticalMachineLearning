@@ -101,7 +101,7 @@ We have tested several different models in order to see which one gives better r
 
 (Note: In order to speed-up our processing, we have used parallelization)
 
-```{r setcluster,echo=FALSE, results='hide', cache=TRUE}
+```{r setcluster,echo=FALSE, results='hide',cache=TRUE}
 ## Turn on PP (leave at least 1 core free so your machine is still usable when doing the calc)
 cluster <- makeCluster(detectCores() - 1)
 registerDoParallel(cluster)
@@ -109,7 +109,7 @@ registerDoParallel(cluster)
 
 ###Principal components model
 We run the principal components model with the whole remaining training dataset. 
-```{r pcamodel, echo=FALSE, cache=TRUE, results='hide'}
+```{r pcamodel, echo=FALSE, cache=TRUE, results='hide', warning=FALSE}
 preProc <- train(classe ~ ., data = training_redux, preProcess="pca")
 ```
 
