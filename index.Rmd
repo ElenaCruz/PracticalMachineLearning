@@ -76,7 +76,7 @@ names(training_redux)
 ```
 
 ### Build correlation matrix and remove correlated vars
-Once we have a clean dataset, the next step in our analysis is to build the correlation matrix for all the variables in the training set, and those that are highly correlated by applying the *findCorrelation* function. We have discarded those entries that have shown to be correlated amongs them. 
+Once we have a clean dataset, the next step in our analysis is to build the correlation matrix for all the variables in the training set, and those that are highly correlated by applying the *findCorrelation* function. We have discarded those entries that have shown to be correlated amongts them. 
 
 ```{r seecorrelatedvars, cache=TRUE,fig.align='center', fig.height=7, fig.width=7,fig.pos='h',fig.cap="Correlation Matrix for the clean training Dataset",echo=FALSE}
 corMatrix_entry <- select(training_redux, -classe) #We remove the classe column
