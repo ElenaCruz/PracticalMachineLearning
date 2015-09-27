@@ -1,6 +1,6 @@
 ---
 title: "Practical Machine Learning Project"
-author: "María Elena Cruz Martín"
+author: "Elena Cruz Martín"
 output: html_document
 ---
 ```{r loadggplot, echo=FALSE,message=FALSE }
@@ -97,7 +97,7 @@ We have tested several different models in order to see which one gives better r
 
 * Tree model
 
-* Random forests
+* Random forests (on its own, not as method for pca)
 
 (Note: In order to speed-up our processing, we have used parallelization)
 
@@ -108,14 +108,18 @@ registerDoParallel(cluster)
 ```
 
 ###Principal components model
-We run the principal components model with the whole remaining training dataset, with the following results: 
-```{r pcamodel, echo=FALSE, cache=TRUE}
+We run the principal components model with the whole remaining training dataset. 
+```{r pcamodel, echo=FALSE, cache=TRUE, results='hide'}
 preProc <- train(classe ~ ., data = training_redux, preProcess="pca")
+```
+
+The results we obtain for this analysis are:
+```{r pcamodelshow, echo=FALSE, cache=TRUE}
 print(preProc$finalModel)
 ```
 
 ###Tree model
-As we have done for the principal components model, we build and run the tree model with the whole datasets
+As we have done for the principal components model, we build and run the tree model with the whole dataset:
 ```{r treemodel, cache=TRUE,fig.align='center', fig.height=5, fig.width=5,fig.pos='h',fig.cap="Tree model",echo=FALSE}
 modFit_tree <- train(classe~., data = training_redux, method="rpart")
 print(modFit_tree$finalModel)
@@ -124,9 +128,12 @@ fancyRpartPlot(modFit_tree$finalModel, main="Final model for the Tree model")
 
 
 ###Random forest model
-Finally, we also test a random forest model with the wole dataset
-```{r rfmodel, cache=TRUE, echo=FALSE}
+Finally, we also test a random forest model with the whole dataset:
+```{r rfmodel, cache=TRUE, echo=FALSE, results='hide'}
 modFit_rf <- train(classe~., data = training_redux, method="rf")
+```
+
+```{r rfmodelshow, cache=TRUE, echo=FALSE}
 print(modFit_rf$finalModel)
 ```
 
@@ -136,7 +143,7 @@ stopCluster(cluster)
 
 
 ##Conclusions and results
-From the results of the different models, we can see that the random forest model has the lowest OOB estimate of error rate (OOB estimate of  error rate: 0.43%). Thus, this is the model we will select for our analysis (and this also servers as cross-validation) . The PCA model also gives good results (OOB estimate of  error rate: 1.74%)
+From the results of the different models, we can see that the random forest model has the lowest OOB estimate of error rate (see final model OOB estimate of error rate above, as well as the confusion matrix). Thus, this is the model we will select for our analysis (and this also servers as cross-validation).
 
 The result dataset we obtain for the testing set wit the rf model is the following:
 ```{r showresults, echo=FALSE}
@@ -144,7 +151,7 @@ answers_rf <- predict(modFit_rf,testing)
 answers_rf
 ```
 
-
+NOTE: To run this Rmd file, you need to have in its same directory the pml-training.csv and pml-testing.csv files.
 
 
 
