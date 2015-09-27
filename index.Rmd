@@ -13,25 +13,26 @@ require(doParallel, quietly=T)
 ```
 
 ## Overview
-Five different fashions for the Unilateral Dumbbell Biceps Curl have been considered:
+In this exercise, we will study the results of the Unilateral Dumbbell Biceps Curl exercise performed by several different users. The objective of this study is to build a model to predict whether the user is performing the exercise well or not. For this, five different fashions for the Unilateral Dumbbell Biceps Curl have been considered:
 
-* Class A:exactly according to the specification <- "OK"
+* Class A:exactly according to the specification <- Right way to perform the exercise
 
-* Class B:throwing the elbows to the front <- "NoOK"
+* Class B:throwing the elbows to the front <- Wrong way to perform the exercise
 
-* Class C: lifting the dumbbell only halfway <- "NoOK"
+* Class C: lifting the dumbbell only halfway <- Wrong way to perform the exercise
 
-* Class D: lowering the dumbbell only halfway <- "NoOK"
+* Class D: lowering the dumbbell only halfway <- Wrong way to perform the exercise
 
-* Class E: throwing the hips to the front <- "NoOK"
+* Class E: throwing the hips to the front <- Wrong way to perform the exercise
 
-(Read more: http://groupware.les.inf.puc-rio.br/har#ixzz3mUfOAnhN)
+(For more information on this, read more: http://groupware.les.inf.puc-rio.br/har#ixzz3mUfOAnhN)
 
-Original paper: Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. Qualitative Activity Recognition of Weight Lifting Exercises. Proceedings of 4th International Conference in Cooperation with SIGCHI (Augmented Human '13) . Stuttgart, Germany: ACM SIGCHI, 2013.
+The dataset and dataset description is avalailable from here[http://groupware.les.inf.puc-rio.br/har]
 
-Read more: http://groupware.les.inf.puc-rio.br/har#ixzz3mUvZoaRB
+Original paper: Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. Qualitative Activity Recognition of Weight Lifting Exercises. Proceedings of 4th International Conference in Cooperation with SIGCHI (Augmented Human '13) . Stuttgart, Germany: ACM SIGCHI, 2013.(Read more: http://groupware.les.inf.puc-rio.br/har#ixzz3mUvZoaRB)
 
 ##Data cleaning and pre-processing
+This is an important part of the work we've performed to build the machine learning model for this dataset.  After loading the dataset, a significant amount of time has been spent in evaluating the values of the different data columns, checking which ones of them had wrong or incomplete values and appliying different approaches in order to get a clean data set. 
 
 ```{r loaddata, echo=FALSE, results='hide', cache=TRUE}
 data_dir <- "."
@@ -42,6 +43,7 @@ training <- read.table(file=file.path(data_dir,training_file_name),sep=",", head
 testing <- read.table(file=file.path(data_dir,testing_file_name),sep=",", header=TRUE)
 ```
 
+From the data loading we get a training set with `r ncol(training)` columns and  `r nrow(training)` different rows, while the testing set has `r nrow(testing)`, which will be used as the set of samples we need to predict after the model has been built. The name of the variable we want to predict is **classe**, that is, the manner in which the subject has performed the exercise
 
 ```{r removesummaries , echo=FALSE, results='hide', cache=TRUE}
 summary_patterns <- c("max", "min","stddev", "var", "avg", "kurtosis", "skewness")
@@ -49,7 +51,7 @@ summary_columns <- unlist(sapply(summary_patterns, grep, names(training)))
 training_redux <- select(training, -summary_columns)
 ```
 
-From a basic preliminary analysis of the data we detect that there are some columns that are 'summaries' of the 'raw data', that is, columns which contain the max, min, standard deviation, variance and standard deviation of the raw data. These columns have information that has been already included in the raw data information, so we will remove them in order to make our analysis simpler. We will remove the columns that contain the following patterns: `r summary_patterns`. This will allow us to remove `r length(summary_columns)` columns from the original dataset.
+A basic preliminary analysis of the data allows detecting that there are some columns that are 'summaries' of the 'raw data', that is, columns which contain the max, min, standard deviation, variance and standard deviation of the raw data. These columns have information that has been already included in the raw data information, so we will remove them in order to make our analysis simpler. We will remove the columns that contain the following patterns: `r summary_patterns`. This will allow us to remove `r length(summary_columns)` columns from the original dataset.
 
 We also detect there are many errors in the amplitude columns. The vast majority of values in these columns are either 0, #DIV/0! or empty. Thus, we also remove these columns, as they are clearly wrong.
 ```{r remove_amp_cols, echo=FALSE, results='hide', cache=TRUE}
@@ -58,26 +60,25 @@ amp_yaw_columns <- grep(amp_yaw_pattern, names(training_redux))
 training_redux <- select(training_redux, -amp_yaw_columns)
 ```
 
-These filtering operations allow us having a clean dataset, with no NAs:
-```{r showsummary, echo=FALSE, cache=TRUE}
-summary(training_redux)
-```
-
+These filtering operations allow us having a clean dataset, with no NAs.
 
 ```{r cleannotneeded,echo=FALSE, results='hide', cache=TRUE}
 #Remove not needed vars 
 removed_names <-names(training_redux)[1:7]
 training_redux <- training_redux[,8:ncol(training_redux)]
-
 ```
 Finally, we have also identified some columns that are not relevant for the analysis, which are:`r removed_names`. These columns will not be included in our analysis. 
 
-So, `r length(amp_yaw_columns) + length(removed_names)` more columns are removed. Only `r ncol(training_redux)` remain from the original `r ncol(training)`.
+So, `r length(amp_yaw_columns) + length(removed_names)` more columns are removed. Only `r ncol(training_redux)` remain from the original `r ncol(training)`. The dataset looks now as follows: 
+
+```{r showhead}
+head(training_redux)
+```
 
 ### Build correlation matrix and remove correlated vars
-The next step in our analysis is to build the correlation matrix for all the variables in the training set, and those that are highly correlated by applying the *findCorrelation* function.
+Once we have a clean dataset, the next step in our analysis is to build the correlation matrix for all the variables in the training set, and those that are highly correlated by applying the *findCorrelation* function.
 
-```{r seecorrelatedvars, cache=TRUE}
+```{r seecorrelatedvars, cache=TRUE,fig.align='center', fig.height=7, fig.width=7,fig.pos='h',fig.cap="Correlation Matrix for the clean training Dataset",echo=FALSE}
 corMatrix_entry <- select(training_redux, -classe) #We remove the classe column
 corMatrix <- cor(corMatrix_entry)
 correlatedCols <- findCorrelation(corMatrix, names=TRUE)
@@ -105,7 +106,7 @@ print(preProc$finalModel)
 ```
 
 ###Tree model
-```{r treemodel, cache=TRUE}
+```{r treemodel, cache=TRUE,fig.align='center', fig.height=5, fig.width=5,fig.pos='h',fig.cap="Tree model",echo=FALSE}
 modFit_tree <- train(classe~., data = training_redux, method="rpart")
 print(modFit_tree$finalModel)
 fancyRpartPlot(modFit_tree$finalModel)
