@@ -76,7 +76,7 @@ names(training_redux)
 ```
 
 ### Build correlation matrix and remove correlated vars
-Once we have a clean dataset, the next step in our analysis is to build the correlation matrix for all the variables in the training set, and those that are highly correlated by applying the *findCorrelation* function. We have discarded those entries that have shown to be correlated amongts them. 
+Once we have a clean dataset, the next step in our analysis is to build the correlation matrix for all the variables in the training set, and those that are highly correlated by applying the *findCorrelation* function. We have discarded those entries that have shown to be correlated amongst them. 
 
 ```{r seecorrelatedvars, cache=TRUE,fig.align='center', fig.height=7, fig.width=7,fig.pos='h',fig.cap="Correlation Matrix for the clean training Dataset",echo=FALSE}
 corMatrix_entry <- select(training_redux, -classe) #We remove the classe column
@@ -143,7 +143,7 @@ stopCluster(cluster)
 
 
 ##Conclusions and results
-From the results of the different models, we can see that the random forest model has the lowest OOB estimate of error rate (see final model OOB estimate of error rate above, as well as the confusion matrix). Thus, this is the model we will select for our analysis (and this also servers as cross-validation).
+From the results of the different models, we can see that the random forest model has the lowest OOB estimate of error rate (see final model OOB estimate of error rate above, as well as the confusion matrix). Thus, this is the model we will select for our analysis (and this also serves as cross-validation).
 
 The result dataset we obtain for the testing set wit the rf model is the following:
 ```{r showresults, echo=FALSE}
